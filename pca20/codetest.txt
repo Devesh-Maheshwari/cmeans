@@ -1,0 +1,45 @@
+import numpy as np
+import sklearn.preprocessing as pre
+import cv2
+from sklearn.svm import SVC
+
+data_train_1= np.genfromtxt("trainclass1.csv", delimiter=',')
+data_train_2= np.genfromtxt("trainclass2.csv", delimiter=',')
+data_test_1= np.genfromtxt("testclass1.csv", delimiter=',')
+data_test_2= np.genfromtxt("testclass2.csv", delimiter=',')
+
+out=np.asarray([np.zeros(len(data_train_1))])   
+data_train_1=np.concatenate((data_train_1,out.T),axis=1)
+out=np.asarray([np.ones(len(data_train_2))])   
+data_train_2=np.concatenate((data_train_2,out.T),axis=1)
+
+out=np.asarray([np.zeros(len(data_test_1))])   
+data_test_1=np.concatenate((data_test_1,out.T),axis=1)
+out=np.asarray([np.ones(len(data_test_2))])   
+data_test_2=np.concatenate((data_test_2,out.T),axis=1)
+
+train_data=np.concatenate((data_train_1,data_train_2),axis=0)
+X_train=train_data[:,:-1]
+y_train=train_data[:,-1]
+
+test_data=np.concatenate((data_test_1,data_test_2),axis=0)
+X_test=test_data[:,:-1]
+y_test=test_data[:,-1]
+
+X_train=pre.scale(X_train,axis=0)
+X_test=pre.scale(X_test,axis=0)
+
+print("Training data shape is:",X_train.shape)
+print("Testing data shape is :",X_test.shape)
+clf = SVC(kernel='rbf',C=0.2)
+clf = clf.fit(X_train, y_train)
+y_pred = clf.predict(X_train)
+print("Training Accuracy :",clf.score(X_train,y_train)*100) 
+y_pred = clf.predict(X_test)
+print("Testing Accuracy  :",clf.score(X_test,y_test)*100)  
+
+from sklearn.metrics import confusion_matrix
+print(confusion_matrix(y_test,y_pred))  
+
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+print(classification_report(y_test,y_pred)) 
